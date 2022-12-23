@@ -6,7 +6,7 @@
 #define WET2_TEAM_H
 
 #include "wet2util.h"
-#include "list.h"
+#include "node.h"
 
 class Player;
 
@@ -20,7 +20,7 @@ private:
     int teamAbility;
     int numGoalKeepers;
     bool isActive;
-    list<Player>* leader;
+    node<Player>* leader;
 
 public:
     Team(int id) : teamId(id), teamStrength(0), numOfPlayers(0), gamesPlayed(0), points(0), teamAbility(0), numGoalKeepers(0),
