@@ -212,7 +212,7 @@ public:
         root = remove(root, x, smaller);
     }
 
-    T* find(T* x, bool(*smaller)(const T&, const T&)){
+    T* find(const T& x, bool(*smaller)(const T&, const T&)){
         return find(root, x, smaller);
     }
 };

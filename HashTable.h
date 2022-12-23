@@ -17,7 +17,10 @@ private:
     int count;
 public:
     explicit HashTable() : table(new list<T>*[INITIAL_SIZE]), size(INITIAL_SIZE), count(0) {}
-    ~HashTable(){ delete []table;}
+    void makeEmpty();
+    ~HashTable(){
+        delete []table;
+    }
     list<T>* find(int key);
     void insert(T obj, int key);
     void remove(int key);
@@ -109,6 +112,18 @@ list<T> *HashTable<T>::find(int key) {
         node = node->GetNext();
     }
     return nullptr;
+}
+
+template<typename T>
+void HashTable<T>::makeEmpty() {
+    for (int i = 0; i < this->size; ++i) {
+        list<T>* node = this->table[i];
+        while (node != nullptr){
+            node->GetData()->eraseData();
+            node->eraseData();
+            node = node->GetNext();
+        }
+    }
 }
 
 #endif //WET2_HASHTABLE_H

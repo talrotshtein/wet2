@@ -16,13 +16,21 @@
 #define WORLDCUP23A2_H_
 
 #include "wet2util.h"
+#include "AVL_Rank.h"
+#include "Team.h"
+#include "Player.h"
+#include "HashTable.h"
 
 class world_cup_t {
 private:
 	//
 	// Here you may add anything you want
 	//
-	
+    AVL_Rank<Team>* teamsById;
+    AVL_Rank<Team>* teamsByAbility;
+	HashTable<list<Player>*>* players;
+    HashTable<list<Player>*>* teamLeaders;
+
 public:
 	// <DO-NOT-MODIFY> {
 	

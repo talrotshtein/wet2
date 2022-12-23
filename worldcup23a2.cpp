@@ -1,24 +1,69 @@
 #include "worldcup23a2.h"
 
-world_cup_t::world_cup_t()
-{
-	// TODO: Your code goes here
+bool CompareById(const Team& team1, const Team& team2){
+    return team1.GetId() < team2.GetId();
 }
+
+bool CompareByAbility(const Team& team1, const Team& team2){
+    if (team1.GetAbility() < team2.GetAbility()){
+        return true;
+    }else if (team1.GetAbility() == team2.GetAbility() &&
+    team1.GetId() < team2.GetId()){
+        return true;
+    }
+    return false;
+}
+
+world_cup_t::world_cup_t() : teamsById(nullptr), teamsByAbility(nullptr), players(nullptr),
+teamLeaders(nullptr) {}
 
 world_cup_t::~world_cup_t()
 {
-	// TODO: Your code goes here
+    players->makeEmpty();
+    delete players;
+    delete teamLeaders;
+    delete teamsById;
+    delete teamsByAbility;
 }
 
 StatusType world_cup_t::add_team(int teamId)
 {
-	// TODO: Your code goes here
+    Team tempTeam = Team(teamId);
+    if (teamId <= 0){
+        return StatusType::INVALID_INPUT;
+    }else if (this->teamsById->find(tempTeam, &CompareById) != nullptr){
+        return StatusType::FAILURE;
+    }
+    try{
+        Team* newTeam = new Team(teamId);
+        if (this->teamsById == nullptr){
+            this->teamsById = new AVL_Rank<Team>();
+        }
+        this->teamsById->insert(newTeam, &CompareById);
+        this->teamsByAbility->insert(newTeam, &CompareByAbility);
+    }catch(const std::bad_alloc&){
+        return StatusType::ALLOCATION_ERROR;
+    }
 	return StatusType::SUCCESS;
 }
 
 StatusType world_cup_t::remove_team(int teamId)
 {
-	// TODO: Your code goes here
+    Team tempTeam = Team(teamId);
+	if (teamId <= 0){
+        return StatusType::INVALID_INPUT;
+    }else if (this->teamsById == nullptr ||
+    this->teamsById->find(tempTeam, &CompareById) == nullptr){
+        return StatusType::FAILURE;
+    }
+    try{
+        Team* team = this->teamsById->find(tempTeam, &CompareById);
+        team->SetActive(false);
+        this->teamsById->remove(*team, &CompareById);
+        this->teamsByAbility->remove(*team, &CompareByAbility);
+    }catch(...){
+        return StatusType::ALLOCATION_ERROR;
+    }
 	return StatusType::FAILURE;
 }
 
