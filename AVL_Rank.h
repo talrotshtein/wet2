@@ -65,16 +65,15 @@ private:
 
     T* find (Node* t, const T& x, bool(*smaller)(const T& x, const T& y)){
         if (t == nullptr){
-            return t;
+            return t->data;
         }
 
         else if (smaller(x, *t->data)){
-            t->left = insert(t->left, x, smaller);
+            find(t->left, x, smaller);
         }else if (smaller(*t->data, x)){
-            t->Right = insert(t->right, x, smaller);
-        }else{
-            return t->data;
+            find(t->right, x, smaller);
         }
+        return t->data;
     }
 
     Node* rightRotate(Node* t){
@@ -109,7 +108,7 @@ private:
         if (smaller(*data, *t->data)){
             t->left = insert(t->left, data, smaller);
         }else if (!smaller(*data, *t->data)){
-            t->Right = insert(t->right, data, smaller);
+            t->right = insert(t->right, data, smaller);
         }
 
         t->height = 1 + max(Height(t->left), Height(t->right));
@@ -126,7 +125,7 @@ private:
         else if (balance > 1 && !smaller(*t->left->data, *data)){
             return rightRotate(t);
         }//LR
-        else if (balance > 1 && maller(*t->right->data, *data)){
+        else if (balance > 1 && smaller(*t->right->data, *data)){
             t->left = leftRotate(t->left);
             return rightRotate(t);
         }
@@ -142,7 +141,7 @@ private:
         if (smaller(val, *t->data)){
             t->left = remove(t->left, val, smaller);
         }else if (smaller(*t->data, val)){
-            t->Right = remove(t->right, val, smaller);
+            t->right = remove(t->right, val, smaller);
         }
 
         else{
