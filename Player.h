@@ -15,10 +15,10 @@ private:
     int cards;
     bool goalKeeper;
     Team* originalTeam;
-    const permutation_t* spirit;
+    permutation_t* spirit;
 
 public:
-    Player(int playerId, int gamesPlayed, int ability, int cards,  bool goalKeeper, Team* team, const permutation_t& spirit) :
+    Player(int playerId, int gamesPlayed, int ability, int cards,  bool goalKeeper, Team* team, permutation_t& spirit) :
             playerId(playerId), gamesPlayed(gamesPlayed), ability(ability), cards(cards), goalKeeper(goalKeeper),
             originalTeam(team), spirit(&spirit) {}
     Player(const Player& other){
@@ -33,6 +33,14 @@ public:
     ~Player(){
         if (originalTeam != nullptr)
             delete originalTeam;
+    }
+    int GetPlayerId() {return playerId;}
+    int GetGamesPlayed() {return gamesPlayed;}
+    void SetGamesPlayed(int val) {this->gamesPlayed = val;}
+    Team* GetTeam() {return originalTeam;}
+    permutation_t* getSpirit() {return spirit;}
+    void multiplySpirit(const permutation_t& permutation){
+        *spirit = permutation*(*spirit);
     }
 };
 

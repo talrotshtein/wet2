@@ -14,12 +14,12 @@ bool CompareByAbility(const Team& team1, const Team& team2){
     return false;
 }
 
-world_cup_t::world_cup_t() : teamsById(nullptr), teamsByAbility(nullptr), players(nullptr),
+world_cup_t::world_cup_t() : teamsById(nullptr), teamsByAbility(nullptr),
 teamLeaders(nullptr) {}
 
 world_cup_t::~world_cup_t()
 {
-    delete players;
+    //delete players;
     delete teamLeaders;
     delete teamsById;
     delete teamsByAbility;
