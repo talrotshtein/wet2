@@ -19,7 +19,6 @@ teamLeaders(nullptr) {}
 
 world_cup_t::~world_cup_t()
 {
-    players->makeEmpty();
     delete players;
     delete teamLeaders;
     delete teamsById;

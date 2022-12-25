@@ -28,8 +28,8 @@ private:
 	//
     AVL_Rank<Team>* teamsById;
     AVL_Rank<Team>* teamsByAbility;
-	HashTable<Node<Player>*>* players;
-    HashTable<Node<Player>*>* teamLeaders;
+	HashTable<Node<Player>*, int>* players;
+    HashTable<Node<Player>*, int>* teamLeaders;
 
 public:
 	// <DO-NOT-MODIFY> {
