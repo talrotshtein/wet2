@@ -94,6 +94,7 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
         } else  if (team != NULL && team->GetNumOfPlayers() > 0){
             newPlayer = new Player(playerId, gamesPlayed, ability, cards, goalKeeper, NULL, spirit);
             players->addPlayerToTeam(*newPlayer, teamId);
+            ///TODO: MAKE SURE THAT THE REQUIRED UPDATES FOR THE TEAM WILL OCCUR.
         }
     }catch(const std::bad_alloc&){
         return StatusType::ALLOCATION_ERROR;
