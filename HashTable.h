@@ -23,7 +23,13 @@ public:
     ~HashTable() {
         // Free the memory allocated for each bucket.
         for (int i = 0; i < size; ++i) {
-            delete buckets[i];
+            Node<K, V>* curr =  buckets[i];
+            while (curr != nullptr)
+            {
+                Node<K, V>* temp = curr->next;
+                delete curr;
+                curr = temp;
+            }
         }
         delete[] buckets;
     }
@@ -59,7 +65,7 @@ public:
 
     // Returns the value associated with the given key, or null if the key is not
     // present in the hash table.
-    const V& get(const K& key) const {
+    const V* get(const K& key) const {
         // Calculate the bucket for the key.
         int bucket = key % size;
 
@@ -67,7 +73,7 @@ public:
         Node<K,V>* current = buckets[bucket];
         while (current != NULL) {
             if (current->key == key) {
-                return current->value;
+                return &(current->value);
             }
             current = current->next;
         }
@@ -103,6 +109,19 @@ public:
             }
             current = current->next;
         }
+    }
+
+    void MakeEmpty(void(*deleteFunc)(V)){
+        for (int i = 0; i < size; ++i) {
+            Node<K,V>* current = buckets[i];
+            while (current != NULL) {
+                deleteFunc(current->value);
+                current = current->next;
+            }
+        }
+
+        // Update the size and buckets of the hash table.
+        delete[] buckets;
     }
 
 private:

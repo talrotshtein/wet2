@@ -26,22 +26,14 @@ private:
 public:
     Team(int id) : teamId(id), teamStrength(0), numOfPlayers(0), gamesPlayed(0), points(0), teamAbility(0), numGoalKeepers(0),
     isActive(true), teamSpirit(NULL), leader(nullptr){}
-    Team(const Team& other){
-        teamId = other.teamId;
-        teamStrength = other.teamStrength;
-        numOfPlayers = other.numOfPlayers;
-        gamesPlayed = other.gamesPlayed;
-        points = other.points;
-        teamAbility = other.teamAbility;
-        numGoalKeepers = other.numGoalKeepers;
-        isActive = other.isActive;
-        *leader = *other.leader;
-    }
     int GetId() const {return this->teamId;}
     int GetAbility() const {return this->teamAbility;}
     int GetNumOfPlayers() const {return this->numOfPlayers;}
     int GetGamesPlayed() const {return this->gamesPlayed;}
      permutation_t* GetTeamSpirit() const {return this->teamSpirit;}
+     void multiplyTeamSpirit(const permutation_t& other) {*teamSpirit = *teamSpirit*other;}
+     void SetAbilityi(int val) {this->teamAbility = val;}
+    void SetLeader(Node<int, Player*>* other) {leader = other;}
     void SetActive(bool val) {this->isActive = val;}
     void SetGamesPlayed(int val) {this->gamesPlayed = val;}
     void SetNumOfPlayers(int val) {this->numOfPlayers = val;}

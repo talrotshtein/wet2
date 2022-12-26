@@ -14,13 +14,19 @@ bool CompareByAbility(const Team& team1, const Team& team2){
     return false;
 }
 
-world_cup_t::world_cup_t() : teamsById(nullptr), teamsByAbility(nullptr),
-teamLeaders(nullptr) {}
+void DeletePlayerNode(Node<int, Player*>* node){
+    delete node->value;
+    delete node;
+}
+
+world_cup_t::world_cup_t() : teamsById(nullptr), teamsByAbility(nullptr), players(nullptr) {}
+
+
 
 world_cup_t::~world_cup_t()
 {
-    //delete players;
-    delete teamLeaders;
+    players->MakeEmpty(&DeletePlayerNode);
+    delete players;
     delete teamsById;
     delete teamsByAbility;
 }
@@ -30,13 +36,16 @@ StatusType world_cup_t::add_team(int teamId)
     Team tempTeam = Team(teamId);
     if (teamId <= 0){
         return StatusType::INVALID_INPUT;
-    }else if (this->teamsById->find(tempTeam, &CompareById) != nullptr){
+    }else if (this->teamsById != NULL && this->teamsById->find(tempTeam, &CompareById) != nullptr){
         return StatusType::FAILURE;
     }
     try{
         Team* newTeam = new Team(teamId);
         if (this->teamsById == nullptr){
             this->teamsById = new AVL_Rank<Team>();
+        }
+        if (this->teamsByAbility == NULL){
+            this->teamsByAbility = new AVL_Rank<Team>();
         }
         this->teamsById->insert(newTeam, &CompareById);
         this->teamsByAbility->insert(newTeam, &CompareByAbility);
@@ -70,13 +79,31 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
                                    const permutation_t &spirit, int gamesPlayed,
                                    int ability, int cards, bool goalKeeper)
 {
-
+    Team temp = Team(teamId);
+    if(playerId <= 0 || teamId <= 0 || !spirit.isvalid() || gamesPlayed < 0 || cards < 0)
+        return StatusType::INVALID_INPUT;
+    if((players != nullptr && players->DoesPlayerExist(playerId)) || (teamsById != NULL && teamsById->find(temp, &CompareById) == NULL))
+        return StatusType::FAILURE;
+    try{
+        Team* team = teamsById->find(temp, &CompareById);
+        Player* newPlayer;
+        if (team != NULL && team->GetNumOfPlayers() == 0){
+            newPlayer = new Player(playerId, gamesPlayed, ability, cards, goalKeeper, team, spirit);
+            Node<int, Player*>* newNode = players->makeset(*newPlayer, teamId);
+            team->SetLeader(newNode);
+        } else  if (team != NULL && team->GetNumOfPlayers() > 0){
+            newPlayer = new Player(playerId, gamesPlayed, ability, cards, goalKeeper, NULL, spirit);
+            players->addPlayerToTeam(*newPlayer, teamId);
+        }
+    }catch(const std::bad_alloc&){
+        return StatusType::ALLOCATION_ERROR;
+    }
 	return StatusType::SUCCESS;
 }
 
 output_t<int> world_cup_t::play_match(int teamId1, int teamId2)
 {
-	// TODO: Your code goes here
+
 	return StatusType::SUCCESS;
 }
 

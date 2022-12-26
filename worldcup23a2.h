@@ -20,6 +20,7 @@
 #include "Team.h"
 #include "Player.h"
 #include "HashTable.h"
+#include "UnionFind.h"
 
 class world_cup_t {
 private:
@@ -28,8 +29,8 @@ private:
 	//
     AVL_Rank<Team>* teamsById;
     AVL_Rank<Team>* teamsByAbility;
-	//HashTable<Node<Player>*, int>* players; Replace with union find.
-    HashTable<Node<int, Player>*, int>* teamLeaders;
+	UnionFind* players;
+
 
 public:
 	// <DO-NOT-MODIFY> {

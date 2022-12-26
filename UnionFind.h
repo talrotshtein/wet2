@@ -17,9 +17,13 @@ private:
 public:
     UnionFind() : players(new HashTable<int ,Node<int, Player*>*>(INITIAL_SIZE)),
                   teams(new HashTable<int ,Node<int, Player*>*>(INITIAL_SIZE)){}
-    void makeset(Player& player, int teamId);
+    Node<int, Player*>* makeset(Player& player, int teamId);
     Node<int, Player*>* find(int key);
-    void unite(int team1, int team2);
+    void unite(Node<int, Player*>* team1, Node<int, Player*>* team2);
+    void addPlayerToTeam(Player& player, int teamId);
+    bool DoesPlayerExist(int id);
+    ~UnionFind();
+    void MakeEmpty(void(*deleteFunc)(Node<int, Player*>*));
 };
 
 
