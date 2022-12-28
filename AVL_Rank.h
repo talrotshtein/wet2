@@ -65,7 +65,7 @@ private:
 
     T* find (Node* t, const T& x, bool(*smaller)(const T& x, const T& y)){
         if (t == nullptr){
-            return t->data;
+            return NULL;
         }
 
         else if (smaller(x, *t->data)){
@@ -74,6 +74,21 @@ private:
             find(t->right, x, smaller);
         }
         return t->data;
+    }
+
+    T* getIthNode(Node* t, int i, int sum) {
+        if (t == NULL){
+            return NULL;
+        }
+
+        else if (Size(t->left) == i-1){
+            return t->data;
+        }
+        else if (Size(t->left) < i-1){
+            return getIthNode(t->right, i, sum+Size(t->left)+1);
+        }
+
+        return getIthNode(t->left, i, sum);
     }
 
     Node* rightRotate(Node* t){
@@ -201,6 +216,10 @@ public:
         makeEmpty(root);
     }
 
+    int getTreeSize(){
+        return root->size;
+    }
+
     void insert(T* x, bool(*smaller)(const T& x, const T& y)){
         root = insert(root, x, smaller);
 
@@ -209,6 +228,10 @@ public:
     void remove(const T& x, bool(*smaller)(const T&, const T&))
     {
         root = remove(root, x, smaller);
+    }
+
+    T* getIthNode(int i){
+        return getIthNode(root ,i, 0);
     }
 
     T* find(const T& x, bool(*smaller)(const T&, const T&)){

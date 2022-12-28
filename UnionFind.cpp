@@ -13,7 +13,7 @@ void minimizePath(Node<int, Player*>* node){
     Player* current = node->value;
     Player* next = node->next->value;
     current->SetGamesPlayed(current->GetGamesPlayed() + next->GetGamesPlayed());
-    current->multiplySpirit(next->getSpirit());
+    current->multiplySpirit(next->getPartialSpirit()*next->getSpirit().inv());
     node->next = node->next->next;
 }
 
@@ -56,13 +56,22 @@ void UnionFind::unite(Node<int, Player*>* team1, Node<int, Player*>* team2) {
         team2ptr->multiplyTeamSpirit(team1->value->getSpirit());
         team1ptr->SetGamesPlayed(team1ptr->GetGamesPlayed() - team2ptr->GetGamesPlayed());
         team2ptr->SetNumOfPlayers(team1ptr->GetNumOfPlayers() + team2ptr->GetNumOfPlayers());
+        team2ptr->SetAbility(team1ptr->GetAbility() + team2ptr->GetAbility());
+        team2ptr->SetNumGoalKeepers(team1ptr->GetNumGoalkeepers() + team2ptr->GetNumGoalkeepers());
+        team2ptr->SetPoints(team1ptr->GetPoints() + team2ptr->GetPoints());
+        team2ptr->UpdateStrength();
         teams->remove(team1Id);
     }else
     {
         team2->next = team1;
         team2->value->multiplySpirit(*team1ptr->GetTeamSpirit());
+        team1ptr->multiplyTeamSpirit(team2->value->getSpirit());
         team2ptr->SetGamesPlayed(team2ptr->GetGamesPlayed() - team1ptr->GetGamesPlayed());
         team1ptr->SetNumOfPlayers(team1ptr->GetNumOfPlayers() + team2ptr->GetNumOfPlayers());
+        team1ptr->SetAbility(team1ptr->GetAbility() + team2ptr->GetAbility());
+        team1ptr->SetNumGoalKeepers(team1ptr->GetNumGoalkeepers() + team2ptr->GetNumGoalkeepers());
+        team1ptr->SetPoints(team1ptr->GetPoints() + team2ptr->GetPoints());
+        team1ptr->UpdateStrength();
         teams->remove(team2Id);
     }
 
@@ -75,6 +84,10 @@ void UnionFind::addPlayerToTeam(Player &player, int teamId) {
     Team* teamPtr = team->value->GetTeam();
     teamPtr->multiplyTeamSpirit(player.getSpirit());
     teamPtr->SetNumOfPlayers(teamPtr->GetNumOfPlayers()+1);
+    if (player.isGoalKeeper())
+        teamPtr->SetNumGoalKeepers(teamPtr->GetNumGoalkeepers()+1);
+    teamPtr->SetAbility(teamPtr->GetAbility() + player.GetAbility());
+    teamPtr->UpdateStrength();
     player.SetGamesPlayed(player.GetGamesPlayed() - teamPtr->GetGamesPlayed());
     player.multiplySpirit(*teamPtr->GetTeamSpirit());
     newNode->next = team;
@@ -91,6 +104,22 @@ void UnionFind::MakeEmpty(void (*deleteFunc)(Node<int, Player *> *)) {
 
 bool UnionFind::DoesPlayerExist(int id) {
     return this->players->get(id) != nullptr;
+}
+
+int UnionFind::NumPlayedGamesForPlayer(int playerId) {
+    Node<int, Player*>* current = *players->get(playerId);
+    minimizePath(current);
+    return current->value->GetGamesPlayed();
+}
+
+Node<int, Player *> *UnionFind::get(int key) {
+    return *players->get(key);
+}
+
+const permutation_t &UnionFind::getPartialSpirit(int playerId) {
+    Node<int, Player*>* player = *players->get(playerId);
+    minimizePath(player);
+    return player->value->getPartialSpirit();
 }
 
 

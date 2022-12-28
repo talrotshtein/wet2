@@ -82,11 +82,14 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
     Team temp = Team(teamId);
     if(playerId <= 0 || teamId <= 0 || !spirit.isvalid() || gamesPlayed < 0 || cards < 0)
         return StatusType::INVALID_INPUT;
-    if((players != nullptr && players->DoesPlayerExist(playerId)) || (teamsById != NULL && teamsById->find(temp, &CompareById) == NULL))
+    if((players != nullptr && players->DoesPlayerExist(playerId)) ||
+    (teamsById != NULL && teamsById->find(temp, &CompareById) == NULL))
         return StatusType::FAILURE;
     try{
         Team* team = teamsById->find(temp, &CompareById);
         Player* newPlayer;
+        if (players == NULL)
+            players = new UnionFind();
         if (team != NULL && team->GetNumOfPlayers() == 0){
             newPlayer = new Player(playerId, gamesPlayed, ability, cards, goalKeeper, team, spirit);
             Node<int, Player*>* newNode = players->makeset(*newPlayer, teamId);
@@ -103,48 +106,151 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
 
 output_t<int> world_cup_t::play_match(int teamId1, int teamId2)
 {
+    if (teamId1 <= 0 || teamId2 <= 0 || teamId1 == teamId2){
+        return StatusType::INVALID_INPUT;
+    }
+    if (teamsById == NULL)
+        return StatusType::FAILURE;
+    Team team1cpy = Team(teamId1);
+    Team team2cpy = Team(teamId2);
+    Team* team1 = teamsById->find(team1cpy, &CompareById);
+    Team* team2 = teamsById->find(team2cpy, &CompareById);
+    if (team1 == NULL || team2 == NULL)
+        return StatusType::FAILURE;
+    else if (team1->GetNumGoalkeepers() == 0 || team2->GetNumGoalkeepers() == 0)
+        return StatusType::FAILURE;
+    int winner;
+    int team1Stats = team1->GetAbility() + team1->GetPoints();
+    int team2Stats = team2->GetAbility() + team2->GetPoints();
+    if (team1Stats > team2Stats){
+        team1->SetPoints(team1->GetPoints() + 3);
+        winner = 1;
+    }else if (team1Stats == team2Stats){
+        if (team1->GetStrength() > team2->GetStrength()){
+            team1->SetPoints(team1->GetPoints() + 3);
+            winner = 2;
+        }else if (team1->GetStrength() == team2->GetStrength()){
+            team1->SetPoints(team1->GetPoints() + 1);
+            team2->SetPoints(team2->GetPoints() + 1);
+            winner = 0;
+        }else{
+            team2->SetPoints(team2->GetPoints() + 3);
+            winner = 4;
+        }
+    }else{
+        team2->SetPoints(team2->GetPoints() + 3);
+        winner = 3;
+    }
+    team1->SetGamesPlayed(team1->GetGamesPlayed() + 1);
+    team2->SetGamesPlayed(team2->GetGamesPlayed() + 1);
 
-	return StatusType::SUCCESS;
+	return output_t<int>{winner};
 }
 
 output_t<int> world_cup_t::num_played_games_for_player(int playerId)
 {
-	// TODO: Your code goes here
-	return 22;
+    if (playerId <= 0){
+        return output_t<int>{StatusType::INVALID_INPUT};
+    }
+    else if (players == NULL || !players->DoesPlayerExist(playerId)){
+        return output_t<int>{StatusType::FAILURE};
+    }
+	return output_t<int>{players->NumPlayedGamesForPlayer(playerId)};
 }
 
 StatusType world_cup_t::add_player_cards(int playerId, int cards)
 {
-	// TODO: Your code goes here
-	return StatusType::SUCCESS;
+    if (playerId <= 0 || cards < 0){
+        return StatusType::INVALID_INPUT;
+    }
+    else if (players == NULL || !players->DoesPlayerExist(playerId)){
+        return StatusType::FAILURE;
+    }
+    Node<int, Player*>* team = players->find(playerId);
+    if (team == NULL || team->value->GetTeam() == NULL || !team->value->GetTeam()->IsActive()){
+        return StatusType::FAILURE;
+    }
+    Node<int, Player*>* player = players->get(playerId);
+    player->value->SetCards(player->value->GetCards() + cards);
+    return StatusType::SUCCESS;
 }
 
 output_t<int> world_cup_t::get_player_cards(int playerId)
 {
-	// TODO: Your code goes here
-	return StatusType::SUCCESS;
+	if (playerId <= 0){
+        return StatusType::INVALID_INPUT;
+    }
+    else if (players == NULL || !players->DoesPlayerExist(playerId)){
+        return StatusType::FAILURE;
+    }
+    Node<int, Player*>* player = players->get(playerId);
+	return output_t<int>{player->value->GetCards()};
 }
 
 output_t<int> world_cup_t::get_team_points(int teamId)
 {
-	// TODO: Your code goes here
-	return 30003;
+    Team temp = Team(teamId);
+	if (teamId <= 0){
+        return StatusType::INVALID_INPUT;
+    }else if (teamsById == NULL || teamsById->find(temp, &CompareById) == NULL){
+        return StatusType::FAILURE;
+    }
+    Team* team = teamsById->find(temp, &CompareById);
+	return output_t<int>{team->GetPoints()};
 }
 
 output_t<int> world_cup_t::get_ith_pointless_ability(int i)
 {
-	// TODO: Your code goes here
-	return 12345;
+    if (teamsByAbility == NULL){
+        return StatusType::FAILURE;
+    }else if (i < 0 || i >= teamsByAbility->getTreeSize()){
+        return StatusType::INVALID_INPUT;
+    }
+    Team* ithTeam = teamsByAbility->getIthNode(i);
+    if (ithTeam == NULL)
+        return StatusType::FAILURE;
+	return output_t<int>{ithTeam->GetAbility()};
 }
 
 output_t<permutation_t> world_cup_t::get_partial_spirit(int playerId)
 {
-	// TODO: Your code goes here
-	return permutation_t();
+    if (playerId <= 0){
+        return StatusType::INVALID_INPUT;
+    }else if (players == NULL || !players->DoesPlayerExist(playerId)){
+        return StatusType::FAILURE;
+    }
+    Node<int, Player*>* team = players->find(playerId);
+    if (team == NULL || team->value->GetTeam() == NULL || !team->value->GetTeam()->IsActive()){
+        return StatusType::FAILURE;
+    }
+	return output_t<permutation_t>{players->getPartialSpirit(playerId)};
 }
 
-StatusType world_cup_t::buy_team(int teamId1, int teamId2)
+StatusType world_cup_t::buy_team(int buyerId, int boughtId)
 {
-	// TODO: Your code goes here
-	return StatusType::SUCCESS;
+	if (buyerId <= 0 || boughtId <= 0 || buyerId == boughtId){
+        return StatusType::INVALID_INPUT;
+    }
+    Team temp1 = Team(buyerId);
+    Team temp2 = Team(boughtId);
+    if (teamsById == NULL || teamsById->find(temp1, &CompareById) == NULL ||
+    teamsById->find(temp2, &CompareById) == NULL){
+        return StatusType::FAILURE;
+    }
+    Team* buyer = teamsById->find(temp1, &CompareById);
+    Team* bought = teamsById->find(temp2, &CompareById);
+    if (buyer->GetNumOfPlayers() == 0){
+        teamsById->remove(temp1, &CompareById);
+        teamsByAbility->remove(temp1, &CompareByAbility);
+        bought->SetId(buyer->GetId());
+        delete buyer;
+    }else if (buyer->GetNumOfPlayers() > 0 && bought->GetNumOfPlayers() == 0){
+        teamsById->remove(temp2, &CompareById);
+        teamsByAbility->remove(temp2, &CompareByAbility);
+        delete bought;
+    }
+    Node<int, Player*>* team1Root = buyer->GetLeader();
+    Node<int, Player*>* team2Root = bought->GetLeader();
+    players->unite(team1Root, team2Root);
+    return StatusType::SUCCESS;
 }
