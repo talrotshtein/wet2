@@ -21,6 +21,14 @@ Node<int, Player*>* UnionFind::makeset(Player &player, int teamId) {
     Node<int, Player*>* newNode = new Node<int, Player*>{player.GetPlayerId(), &player, NULL};
     players->insert(player.GetPlayerId(), newNode);
     teams->insert(teamId, newNode);
+    Node<int, Player*>* team = *teams->get(teamId);
+    Team* teamPtr = team->value->GetTeam();
+    teamPtr->SetSpirit(new permutation_t(player.getSpirit()));
+    teamPtr->SetNumOfPlayers(teamPtr->GetNumOfPlayers()+1);
+    if (player.isGoalKeeper())
+        teamPtr->SetNumGoalKeepers(teamPtr->GetNumGoalkeepers()+1);
+    teamPtr->SetAbility(teamPtr->GetAbility() + player.GetAbility());
+    teamPtr->UpdateStrength();
     return newNode;
 }
 

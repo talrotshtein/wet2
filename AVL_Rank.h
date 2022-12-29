@@ -100,7 +100,7 @@ private:
         t->size = 1 + t->left->size + t->right->size;
         u->height = 1 + max(Height(u->left), Height(u->right));
         u->size = 1 + u->left->size + u->right->size;
-        return t;
+        return u;
     }
 
     Node* leftRotate(Node* t){
@@ -112,7 +112,7 @@ private:
         t->size = 1 + Size(t->left) + Size(t->right);
         u->height = 1 + max(Height(u->right), Height(u->left));
         u->size = 1 + Size(u->left) + Size(u->right);
-        return t;
+        return u;
     }
 
     Node* insert(Node* t, T* data, bool(*smaller)(const T& x, const T& y)){
