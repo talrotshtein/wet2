@@ -244,7 +244,8 @@ StatusType world_cup_t::buy_team(int buyerId, int boughtId)
         teamsByAbility->remove(temp1, &CompareByAbility);
         bought->SetId(buyer->GetId());
         delete buyer;
-    }else if (buyer->GetNumOfPlayers() > 0 && bought->GetNumOfPlayers() == 0){
+    }else if (
+bought->GetNumOfPlayers() == 0){
         teamsById->remove(temp2, &CompareById);
         teamsByAbility->remove(temp2, &CompareByAbility);
         delete bought;
