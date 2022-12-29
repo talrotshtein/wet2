@@ -16,6 +16,7 @@
 #define WET2_UTIL_H_
 
 #include <stdexcept>
+#include <ostream>
 
 // StatusType
 enum struct StatusType {
@@ -67,7 +68,8 @@ public:
 	permutation_t() { for (int i = 0; i < N; ++i) { a[i] = -1; } }
 	permutation_t(const int a[N]) { for (int i = 0; i < N; ++i) { this->a[i] = a[i]; } }
 	permutation_t(const permutation_t &other) : permutation_t(other.a) { }
-	
+
+    static permutation_t invalid() { int a[N]; for (int i = 0; i < N; ++i) { a[i] = -1; } return permutation_t(a); }
 	static permutation_t neutral() { int a[N]; for (int i = 0; i < N; ++i) { a[i] = i; } return permutation_t(a); }
 	
 	bool isvalid() const
@@ -90,7 +92,7 @@ public:
 		
 		return true;
 	}
-	
+
 	int strength() const
 	{
 		int s = 0;
@@ -121,6 +123,92 @@ public:
 		}
 		return permutation_t(res);
 	}
+
+    friend std::ostream& operator<<(std::ostream& out,
+                                    const permutation_t &obj)
+    {
+        if (obj.isvalid())
+        {
+            for (int i = 0; i < N; ++i)
+            {
+                if (i > 0)
+                {
+                    out << ',';
+                }
+                out << (obj.a[i] + 1);
+            }
+        }
+        else
+        {
+            for (int i = 0; i < N; ++i)
+            {
+                if (i > 0)
+                {
+                    out << ',';
+                }
+
+                // N<10
+                // every item 1..9 has extactly one digit.
+                out << '*';
+            }
+        }
+
+        return out;
+    }
+
+    static permutation_t read(const char *in)
+    {
+        // N<10
+        // we can just read a single digit at a time for 1..9
+
+        if (! in) // nullptr
+        {
+            return permutation_t::invalid();
+        }
+
+        permutation_t res;
+
+        for (int i = 0; i < N; ++i)
+        {
+            if (i > 0)
+            {
+                if (in[2 * i - 1] != ',')
+                    // either early termination
+                    // or wrong format
+                {
+                    return permutation_t::invalid();
+                }
+            }
+
+            if (in[2 * i] >= '1' && in[2 * i] <= '9')
+            {
+                res.a[i] = (in[2 * i] - '0') - 1;
+            }
+            else if (in[2 * i] == '*')
+            {
+                res.a[i] = -1;
+            }
+            else
+                // either early termination
+                // or wrong format
+            {
+                return permutation_t::invalid();
+            }
+        }
+
+        if (in[2 * N - 1]) // expected termination not found
+        {
+            return permutation_t::invalid();
+        }
+
+        if (! res.isvalid())
+        {
+            // single representitive of invalidness
+            return permutation_t::invalid();
+        }
+
+        return res;
+    }
 };
 
 #endif // WET2_UTIL_H_

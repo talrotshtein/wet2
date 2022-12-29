@@ -5,9 +5,9 @@
 #ifndef WET2_AVL_RANK_H
 #define WET2_AVL_RANK_H
 
-int max(int a, int b){
-    return a > b ? a:b;
-}
+#include <math.h>
+
+using std::max;
 
 template <typename T>
 class AVL_Rank {
@@ -44,7 +44,7 @@ private:
         if (t == nullptr){
             return 0;
         }
-        return t->left->height - t->right->height;
+        return Height(t->left) - Height(t->right);
     }
 
     int Size(Node* t){
@@ -68,12 +68,13 @@ private:
             return NULL;
         }
 
-        else if (smaller(x, *t->data)){
-            find(t->left, x, smaller);
-        }else if (smaller(*t->data, x)){
-            find(t->right, x, smaller);
+        if (!smaller(x, *t->data) && ! smaller(*t->data, x)){
+            return t->data;
         }
-        return t->data;
+        else if (smaller(x, *t->data)){
+            return find(t->left, x, smaller);
+        }else
+            return find(t->right, x, smaller);
     }
 
     T* getIthNode(Node* t, int i, int sum) {
@@ -87,7 +88,6 @@ private:
         else if (Size(t->left) < i-1){
             return getIthNode(t->right, i, sum+Size(t->left)+1);
         }
-
         return getIthNode(t->left, i, sum);
     }
 
