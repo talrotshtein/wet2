@@ -145,7 +145,8 @@ output_t<int> world_cup_t::play_match(int teamId1, int teamId2)
     }
     team1->SetGamesPlayed(team1->GetGamesPlayed() + 1);
     team2->SetGamesPlayed(team2->GetGamesPlayed() + 1);
-
+    team1->GetLeader()->value->SetGamesPlayed(team1->GetLeader()->value->GetGamesPlayed()+1);
+    team2->GetLeader()->value->SetGamesPlayed(team2->GetLeader()->value->GetGamesPlayed()+1);
 	return output_t<int>{winner};
 }
 
@@ -211,7 +212,7 @@ output_t<int> world_cup_t::get_ith_pointless_ability(int i)
     Team* ithTeam = teamsByAbility->getIthNode(i);
     if (ithTeam == NULL)
         return StatusType::FAILURE;
-	return output_t<int>{ithTeam->GetAbility()};
+	return output_t<int>{ithTeam->GetId()};
 }
 
 output_t<permutation_t> world_cup_t::get_partial_spirit(int playerId)

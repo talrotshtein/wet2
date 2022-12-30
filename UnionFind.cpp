@@ -24,6 +24,7 @@ Node<int, Player*>* UnionFind::makeset(Player &player, int teamId) {
     Node<int, Player*>* team = *teams->get(teamId);
     Team* teamPtr = team->value->GetTeam();
     teamPtr->SetSpirit(new permutation_t(player.getSpirit()));
+    teamPtr->SetGamesPlayed(player.GetGamesPlayed());
     teamPtr->SetNumOfPlayers(teamPtr->GetNumOfPlayers()+1);
     if (player.isGoalKeeper())
         teamPtr->SetNumGoalKeepers(teamPtr->GetNumGoalkeepers()+1);

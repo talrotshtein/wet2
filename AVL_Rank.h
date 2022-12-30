@@ -82,10 +82,10 @@ private:
             return NULL;
         }
 
-        else if (Size(t->left) == i-1){
+        else if (Size(t->left) == i){
             return t->data;
         }
-        else if (Size(t->left) < i-1){
+        else if (Size(t->left) < i){
             return getIthNode(t->right, i, sum+Size(t->left)+1);
         }
         return getIthNode(t->left, i, sum);
