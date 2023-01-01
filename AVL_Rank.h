@@ -5,9 +5,9 @@
 #ifndef WET2_AVL_RANK_H
 #define WET2_AVL_RANK_H
 
-int max(int a, int b){
-    return a > b ? a:b;
-}
+#include <math.h>
+
+using std::max;
 
 template <typename T>
 class AVL_Rank {
@@ -44,7 +44,7 @@ private:
         if (t == nullptr){
             return 0;
         }
-        return t->left->height - t->right->height;
+        return Height(t->left) - Height(t->right);
     }
 
     int Size(Node* t){
@@ -65,15 +65,30 @@ private:
 
     T* find (Node* t, const T& x, bool(*smaller)(const T& x, const T& y)){
         if (t == nullptr){
-            return t->data;
+            return NULL;
         }
 
-        else if (smaller(x, *t->data)){
-            find(t->left, x, smaller);
-        }else if (smaller(*t->data, x)){
-            find(t->right, x, smaller);
+        if (!smaller(x, *t->data) && ! smaller(*t->data, x)){
+            return t->data;
         }
-        return t->data;
+        else if (smaller(x, *t->data)){
+            return find(t->left, x, smaller);
+        }else
+            return find(t->right, x, smaller);
+    }
+
+    T* getIthNode(Node* t, int i, int sum) {
+        if (t == NULL){
+            return NULL;
+        }
+
+        else if (Size(t->left) == i){
+            return t->data;
+        }
+        else if (Size(t->left) < i){
+            return getIthNode(t->right, i, sum+Size(t->left)+1);
+        }
+        return getIthNode(t->left, i, sum);
     }
 
     Node* rightRotate(Node* t){
@@ -85,7 +100,7 @@ private:
         t->size = 1 + t->left->size + t->right->size;
         u->height = 1 + max(Height(u->left), Height(u->right));
         u->size = 1 + u->left->size + u->right->size;
-        return t;
+        return u;
     }
 
     Node* leftRotate(Node* t){
@@ -97,7 +112,7 @@ private:
         t->size = 1 + Size(t->left) + Size(t->right);
         u->height = 1 + max(Height(u->right), Height(u->left));
         u->size = 1 + Size(u->left) + Size(u->right);
-        return t;
+        return u;
     }
 
     Node* insert(Node* t, T* data, bool(*smaller)(const T& x, const T& y)){
@@ -201,6 +216,10 @@ public:
         makeEmpty(root);
     }
 
+    int getTreeSize(){
+        return root->size;
+    }
+
     void insert(T* x, bool(*smaller)(const T& x, const T& y)){
         root = insert(root, x, smaller);
 
@@ -209,6 +228,10 @@ public:
     void remove(const T& x, bool(*smaller)(const T&, const T&))
     {
         root = remove(root, x, smaller);
+    }
+
+    T* getIthNode(int i){
+        return getIthNode(root ,i, 0);
     }
 
     T* find(const T& x, bool(*smaller)(const T&, const T&)){

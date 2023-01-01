@@ -30,14 +30,23 @@ public:
     int GetAbility() const {return this->teamAbility;}
     int GetNumOfPlayers() const {return this->numOfPlayers;}
     int GetGamesPlayed() const {return this->gamesPlayed;}
+    int GetNumGoalkeepers() const {return this->numGoalKeepers;}
+    int GetPoints() const {return this->points;}
+    int GetStrength() const {return this->teamStrength;}
+    Node<int, Player*>* GetLeader() const{return this->leader;}
+    bool IsActive() const{return isActive;}
+    void UpdateStrength(){teamStrength = teamSpirit->strength();}
      permutation_t* GetTeamSpirit() const {return this->teamSpirit;}
      void multiplyTeamSpirit(const permutation_t& other) {*teamSpirit = *teamSpirit*other;}
-     void SetAbilityi(int val) {this->teamAbility = val;}
+     void SetAbility(int val) {this->teamAbility = val;}
     void SetLeader(Node<int, Player*>* other) {leader = other;}
     void SetActive(bool val) {this->isActive = val;}
     void SetGamesPlayed(int val) {this->gamesPlayed = val;}
     void SetNumOfPlayers(int val) {this->numOfPlayers = val;}
     void SetNumGoalKeepers(int val) {this->numGoalKeepers = val;}
+    void SetPoints(int val){this->points = val;}
+    void SetId(int val){this->teamId = val;}
+    void SetSpirit(permutation_t* p) {teamSpirit = p;}
 };
 
 

@@ -60,7 +60,7 @@ public:
 	
 	output_t<permutation_t> get_partial_spirit(int playerId);
 	
-	StatusType buy_team(int teamId1, int teamId2);
+	StatusType buy_team(int buyerId, int boughtId);
 	
 	// } </DO-NOT-MODIFY>
 };
