@@ -8,7 +8,6 @@ void minimizePath(Node<int, Player*>* node){
     if (node->next == NULL || node->next->next == NULL){
         return;
     }
-
     minimizePath(node->next);
     Player* current = node->value;
     Player* next = node->next->value;
@@ -49,39 +48,39 @@ Node<int, Player*>* UnionFind::find(int key) {
     return playerNode;
 }
 
-void UnionFind::unite(Node<int, Player*>* team1, Node<int, Player*>* team2) {
-    if (team1 == NULL || team2 == NULL){
+void UnionFind::unite(Node<int, Player*>* buyer, Node<int, Player*>* bought) {
+    if (buyer == NULL || bought == NULL){
         return;
     }
-    Team* team1ptr = team1->value->GetTeam();
-    Team* team2ptr = team2->value->GetTeam();
-    int team1Size = team1ptr->GetNumOfPlayers();
-    int team2Size = team2ptr->GetNumOfPlayers();
-    int team1Id = team1ptr->GetId();
-    int team2Id = team2ptr->GetId();
-    if (team1Size < team2Size){
-        team1->next = team2;
-        team1->value->multiplySpirit(*team2ptr->GetTeamSpirit());
-        team2ptr->multiplyTeamSpirit(team1->value->getSpirit());
-        team1ptr->SetGamesPlayed(team1ptr->GetGamesPlayed() - team2ptr->GetGamesPlayed());
-        team2ptr->SetNumOfPlayers(team1ptr->GetNumOfPlayers() + team2ptr->GetNumOfPlayers());
-        team2ptr->SetAbility(team1ptr->GetAbility() + team2ptr->GetAbility());
-        team2ptr->SetNumGoalKeepers(team1ptr->GetNumGoalkeepers() + team2ptr->GetNumGoalkeepers());
-        team2ptr->SetPoints(team1ptr->GetPoints() + team2ptr->GetPoints());
-        team2ptr->UpdateStrength();
-        teams->remove(team1Id);
+    Team* buyerPtr = buyer->value->GetTeam();
+    Team* boughtPtr = bought->value->GetTeam();
+    int buyerSize = buyerPtr->GetNumOfPlayers();
+    int boughtSize = boughtPtr->GetNumOfPlayers();
+    int buyerId = buyerPtr->GetId();
+    int boughtId = boughtPtr->GetId();
+    if (buyerSize < boughtSize){
+        buyer->next = bought;
+        buyer->value->multiplySpirit(*boughtPtr->GetTeamSpirit());
+        boughtPtr->multiplyTeamSpirit(buyer->value->getSpirit());
+        buyerPtr->SetGamesPlayed(buyerPtr->GetGamesPlayed() - boughtPtr->GetGamesPlayed());
+        boughtPtr->SetNumOfPlayers(buyerPtr->GetNumOfPlayers() + boughtPtr->GetNumOfPlayers());
+        boughtPtr->SetAbility(buyerPtr->GetAbility() + boughtPtr->GetAbility());
+        boughtPtr->SetNumGoalKeepers(buyerPtr->GetNumGoalkeepers() + boughtPtr->GetNumGoalkeepers());
+        boughtPtr->SetPoints(buyerPtr->GetPoints() + boughtPtr->GetPoints());
+        boughtPtr->UpdateStrength();
+        teams->remove(buyerId);
     }else
     {
-        team2->next = team1;
-        team2->value->multiplySpirit(*team1ptr->GetTeamSpirit());
-        team1ptr->multiplyTeamSpirit(team2->value->getSpirit());
-        team2ptr->SetGamesPlayed(team2ptr->GetGamesPlayed() - team1ptr->GetGamesPlayed());
-        team1ptr->SetNumOfPlayers(team1ptr->GetNumOfPlayers() + team2ptr->GetNumOfPlayers());
-        team1ptr->SetAbility(team1ptr->GetAbility() + team2ptr->GetAbility());
-        team1ptr->SetNumGoalKeepers(team1ptr->GetNumGoalkeepers() + team2ptr->GetNumGoalkeepers());
-        team1ptr->SetPoints(team1ptr->GetPoints() + team2ptr->GetPoints());
-        team1ptr->UpdateStrength();
-        teams->remove(team2Id);
+        bought->next = buyer;
+        bought->value->multiplySpirit(*buyerPtr->GetTeamSpirit());
+        buyerPtr->multiplyTeamSpirit(bought->value->getSpirit());
+        boughtPtr->SetGamesPlayed(boughtPtr->GetGamesPlayed() - buyerPtr->GetGamesPlayed());
+        buyerPtr->SetNumOfPlayers(buyerPtr->GetNumOfPlayers() + boughtPtr->GetNumOfPlayers());
+        buyerPtr->SetAbility(buyerPtr->GetAbility() + boughtPtr->GetAbility());
+        buyerPtr->SetNumGoalKeepers(buyerPtr->GetNumGoalkeepers() + boughtPtr->GetNumGoalkeepers());
+        buyerPtr->SetPoints(buyerPtr->GetPoints() + boughtPtr->GetPoints());
+        buyerPtr->UpdateStrength();
+        teams->remove(boughtId);
     }
 
 }

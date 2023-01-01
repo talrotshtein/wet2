@@ -79,6 +79,9 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
                                    const permutation_t &spirit, int gamesPlayed,
                                    int ability, int cards, bool goalKeeper)
 {
+    if (playerId == 119 && teamId == 54){
+        int b = 9;
+    }
     Team temp = Team(teamId);
     if(playerId <= 0 || teamId <= 0 || !spirit.isvalid() || gamesPlayed < 0 || cards < 0)
         return StatusType::INVALID_INPUT;
@@ -97,7 +100,6 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
         } else  if (team != NULL && team->GetNumOfPlayers() > 0){
             newPlayer = new Player(playerId, gamesPlayed, ability, cards, goalKeeper, NULL, spirit);
             players->addPlayerToTeam(*newPlayer, teamId);
-            ///TODO: MAKE SURE THAT THE REQUIRED UPDATES FOR THE TEAM WILL OCCUR.
         }
 
 
@@ -232,6 +234,9 @@ output_t<permutation_t> world_cup_t::get_partial_spirit(int playerId)
 
 StatusType world_cup_t::buy_team(int buyerId, int boughtId)
 {
+    if (buyerId == 25 && boughtId == 11){
+        int b = 9;
+    }
 	if (buyerId <= 0 || boughtId <= 0 || buyerId == boughtId){
         return StatusType::INVALID_INPUT;
     }
@@ -248,14 +253,16 @@ StatusType world_cup_t::buy_team(int buyerId, int boughtId)
         teamsByAbility->remove(temp1, &CompareByAbility);
         bought->SetId(buyer->GetId());
         delete buyer;
-    }else if (
-bought->GetNumOfPlayers() == 0){
+    }else if (bought->GetNumOfPlayers() == 0){
         teamsById->remove(temp2, &CompareById);
         teamsByAbility->remove(temp2, &CompareByAbility);
         delete bought;
+    }else{
+        Node<int, Player*>* team1Root = buyer->GetLeader();
+        Node<int, Player*>* team2Root = bought->GetLeader();
+        players->unite(team1Root, team2Root);
+        teamsById->remove(temp2, &CompareById);
+        teamsByAbility->remove(temp2, &CompareByAbility);
     }
-    Node<int, Player*>* team1Root = buyer->GetLeader();
-    Node<int, Player*>* team2Root = bought->GetLeader();
-    players->unite(team1Root, team2Root);
     return StatusType::SUCCESS;
 }

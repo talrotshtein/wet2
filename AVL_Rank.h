@@ -56,7 +56,7 @@ private:
 
     Node* findMin(Node* t){
         Node* curr = t;
-        while (curr != nullptr){
+        while (curr->left != nullptr){
             curr = curr->left;
         }
 
@@ -97,9 +97,9 @@ private:
         t->left = u_right;
         u->right = t;
         t->height = 1 + max(Height(t->left), Height(t->right));
-        t->size = 1 + t->left->size + t->right->size;
+        t->size = 1 + Size(t->left) + Size(t->right);
         u->height = 1 + max(Height(u->left), Height(u->right));
-        u->size = 1 + u->left->size + u->right->size;
+        u->size = 1 + Size(u->left) + Size(u->right);
         return u;
     }
 
@@ -166,20 +166,33 @@ private:
                 temp = findMin(t->right);
                 t->data = temp->data;
                 t->right = remove(t->right, *temp->data, smaller);
-            }//Left & not right case:
+            }else
+            {
+                temp = t;
+                if(t->left == NULL)
+                    t = t->right;
+                else if(t->right == NULL)
+                    t = t->left;
+                delete temp;
+            }
+            //Left & not right case:
+            /*
             else if(t->left && !t->right){
                 temp = t->left;
                 t->data = temp->data;
+                delete temp;
             }//Right & not left case:
             else if (!t->left && t->right){
                 temp = t->right;
                 t->data = temp->data;
+                delete temp;
             }//Not right & not left case:
             else if (!t->left && !t->right){
                 temp = t;
                 t = nullptr;
+                delete temp;
             }
-            delete temp;
+             */
         }
         if (t == nullptr){
             return t;
