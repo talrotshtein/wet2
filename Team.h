@@ -22,7 +22,6 @@ private:
     bool isActive;
     permutation_t* teamSpirit;
     Node<int, Player*>* leader;
-
 public:
     Team(int id) : teamId(id), teamStrength(0), numOfPlayers(0), gamesPlayed(0), points(0), teamAbility(0), numGoalKeepers(0),
     isActive(true), teamSpirit(NULL), leader(nullptr){}

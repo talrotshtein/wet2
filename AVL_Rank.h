@@ -20,7 +20,7 @@ private:
         Node* left;
         Node* right;
 
-        Node(T* data) : size(0), height(0), data(data), left(nullptr), right(nullptr){}
+        Node(T* data) : size(1), height(0), data(data), left(nullptr), right(nullptr){}
     };
 
     Node* root;
@@ -82,10 +82,10 @@ private:
             return NULL;
         }
 
-        else if (Size(t->left) == i){
+        else if (Size(t->left) + sum == i){
             return t->data;
         }
-        else if (Size(t->left) < i){
+        else if (Size(t->left) + sum < i){
             return getIthNode(t->right, i, sum+Size(t->left)+1);
         }
         return getIthNode(t->left, i, sum);
@@ -127,6 +127,7 @@ private:
         }
 
         t->height = 1 + max(Height(t->left), Height(t->right));
+        t->size = 1 + Size(t->left) + Size(t->right);
         int balance = BalanceFactor(t);
 
         //RR
@@ -140,7 +141,7 @@ private:
         else if (balance > 1 && !smaller(*t->left->data, *data)){
             return rightRotate(t);
         }//LR
-        else if (balance > 1 && smaller(*t->right->data, *data)){
+        else if (balance > 1 && smaller(*t->left->data, *data)){
             t->left = leftRotate(t->left);
             return rightRotate(t);
         }
@@ -199,6 +200,7 @@ private:
         }
 
         t->height = 1 + max(Height(t->left), Height(t->right));
+        t->size = 1 + Size(t->left) + Size(t->right);
         int balance = BalanceFactor(t);
 
         //RR

@@ -51,13 +51,11 @@ void UnionFind::unite(Node<int, Player*>* buyer, Node<int, Player*>* bought) {
     if (buyer == NULL || bought == NULL){
         return;
     }
-
     // Get pointers to teams & id's.
     Team* buyerPtr = buyer->value->GetTeam();
     Team* boughtPtr = bought->value->GetTeam();
     int buyerId = buyerPtr->GetId();
     int boughtId = boughtPtr->GetId();
-    Team* temp;
     // Simple case ('bought' < 'buyer').
     if (buyerPtr->GetNumOfPlayers() > boughtPtr->GetNumOfPlayers()){
         // Fix the nodes (using the "Crates method" from tutorial).
@@ -68,9 +66,8 @@ void UnionFind::unite(Node<int, Player*>* buyer, Node<int, Player*>* bought) {
         // Remove 'bought' root from the array that holds pointers to team roots (it was united).
         teams->remove(boughtId);
         // Delete team 'bought' (it isn't necessary anymore).
-        temp = boughtPtr;
         bought->value->SetTeam(NULL);
-    }else{ // Hard case ('buyer' < 'bought').
+    }else { // Hard case ('buyer' < 'bought').
         // Fix the nodes (using the "Crates method" from tutorial).
         buyer->next = bought;
         bought->value->multiplySpirit(*buyerPtr->GetTeamSpirit()); //Does: buyer*bought (buyer was before).
@@ -78,10 +75,10 @@ void UnionFind::unite(Node<int, Player*>* buyer, Node<int, Player*>* bought) {
         buyer->value->SetGamesPlayed(buyer->value->GetGamesPlayed() - bought->value->GetGamesPlayed());
 
         // Remove 'buyer' root from the array that holds pointers to team roots (it was united).
-        teams->remove(buyerId);
-
+        teams->remove(boughtId);
         // Make sure that the root of 'bought' holds a pointer to team 'buyer' (he is the new root).
-        temp = boughtPtr;
+        teams->remove(buyerId);
+        teams->insert(buyerId, bought);
         bought->value->SetTeam(buyerPtr);
         buyer->value->SetTeam(NULL);
         buyerPtr->SetLeader(bought);
@@ -93,7 +90,6 @@ void UnionFind::unite(Node<int, Player*>* buyer, Node<int, Player*>* bought) {
     buyerPtr->SetNumGoalKeepers(buyerPtr->GetNumGoalkeepers() + boughtPtr->GetNumGoalkeepers());
     buyerPtr->SetPoints(buyerPtr->GetPoints() + boughtPtr->GetPoints());
     buyerPtr->UpdateStrength();
-    delete temp;
 }
 
 void UnionFind::addPlayerToTeam(Player &player, int teamId) {
@@ -145,6 +141,14 @@ permutation_t UnionFind::getPartialSpirit(int playerId) {
     if (current->next != NULL)
         return p = current->next->value->GetPartialSpirit()*p;
     return p;
+}
+
+void UnionFind::unhashTeam(int teamId) {
+    teams->remove(teamId);
+}
+
+void UnionFind::rehashTeam(int teamId, Node<int, Player *> *leader) {
+    teams->insert(teamId, leader);
 }
 
 

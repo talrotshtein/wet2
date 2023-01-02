@@ -67,6 +67,20 @@ public:
         return NULL;
     }
 
+    const Node<K,V>* getNode(const K& key) const {
+        int index = key % size;
+
+        Node<K,V>* current = arr[index];
+        while (current != NULL) {
+            if (current->key == key) {
+                return current;
+            }
+            current = current->next;
+        }
+
+        return NULL;
+    }
+
     void remove(const K& key){
         int index = key % size;
 

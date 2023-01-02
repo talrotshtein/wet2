@@ -66,6 +66,7 @@ StatusType world_cup_t::remove_team(int teamId)
     }
     try{
         Team* team = this->teamsById->find(tempTeam, &CompareById);
+        tempTeam.SetAbility(team->GetAbility());
         team->SetActive(false);
         this->teamsById->remove(*team, &CompareById);
         this->teamsByAbility->remove(*team, &CompareByAbility);
@@ -204,6 +205,9 @@ output_t<int> world_cup_t::get_team_points(int teamId)
 
 output_t<int> world_cup_t::get_ith_pointless_ability(int i)
 {
+    if (i == 54){
+        int a = 9;
+    }
     if (teamsByAbility == NULL){
         return StatusType::FAILURE;
     }else if (i < 0 || i >= teamsByAbility->getTreeSize()){
@@ -237,26 +241,37 @@ StatusType world_cup_t::buy_team(int buyerId, int boughtId)
     Team temp1 = Team(buyerId);
     Team temp2 = Team(boughtId);
     if (teamsById == NULL || teamsById->find(temp1, &CompareById) == NULL ||
-    teamsById->find(temp2, &CompareById) == NULL){
+            teamsById->find(temp2, &CompareById) == NULL){
         return StatusType::FAILURE;
     }
     Team* buyer = teamsById->find(temp1, &CompareById);
     Team* bought = teamsById->find(temp2, &CompareById);
-    if (buyer->GetNumOfPlayers() == 0){
-        teamsById->remove(temp1, &CompareById);
-        teamsByAbility->remove(temp1, &CompareByAbility);
-        bought->SetId(buyer->GetId());
-        delete buyer;
-    }else if (bought->GetNumOfPlayers() == 0){
+    temp1.SetAbility(buyer->GetAbility());
+    temp2.SetAbility(bought->GetAbility());
+    if (buyer->GetNumOfPlayers() == 0 && bought->GetNumOfPlayers() == 0){
         teamsById->remove(temp2, &CompareById);
         teamsByAbility->remove(temp2, &CompareByAbility);
         delete bought;
+    }else if (buyer->GetNumOfPlayers() == 0){
+        teamsById->remove(temp1, &CompareById);
+        teamsByAbility->remove(temp1, &CompareByAbility);
+        bought->SetId(buyer->GetId());
+        players->unhashTeam(boughtId);
+        players->rehashTeam(buyerId, bought->GetLeader());
+        delete buyer;
+    }else if (bought->GetNumOfPlayers() == 0){
+        teamsById->remove(temp2, &CompareById);
+        teamsByAbility->remove(temp2, &CompareByAbility);;
+        delete bought;
     }else{
+        teamsById->remove(temp2, &CompareById);
+        teamsByAbility->remove(temp2, &CompareByAbility);
+        teamsByAbility->remove(temp1, &CompareByAbility);
         Node<int, Player*>* team1Root = buyer->GetLeader();
         Node<int, Player*>* team2Root = bought->GetLeader();
         players->unite(team1Root, team2Root);
-        teamsById->remove(temp2, &CompareById);
-        teamsByAbility->remove(temp2, &CompareByAbility);
+        teamsByAbility->insert(buyer, &CompareByAbility);
+        delete bought;
     }
     return StatusType::SUCCESS;
 }
