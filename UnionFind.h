@@ -30,6 +30,7 @@ public:
     ~UnionFind();
     void MakeEmpty(void(*deleteFunc)(Node<int, Player*>*));
     int NumPlayedGamesForPlayer(int playerId);
+    void RemoveTeam(int teamId);
 };
 
 

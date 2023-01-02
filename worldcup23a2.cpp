@@ -25,7 +25,8 @@ world_cup_t::world_cup_t() : teamsById(nullptr), teamsByAbility(nullptr), player
 
 world_cup_t::~world_cup_t()
 {
-    players->MakeEmpty(&DeletePlayerNode);
+    if(players != nullptr)
+        players->MakeEmpty(&DeletePlayerNode);
     delete players;
     delete teamsById;
     delete teamsByAbility;
@@ -70,6 +71,8 @@ StatusType world_cup_t::remove_team(int teamId)
         team->SetActive(false);
         this->teamsById->remove(*team, &CompareById);
         this->teamsByAbility->remove(*team, &CompareByAbility);
+        if(team->GetNumOfPlayers() > 0)
+            this->players->RemoveTeam(teamId);
     }catch(...){
         return StatusType::ALLOCATION_ERROR;
     }
@@ -92,15 +95,18 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
         if (players == NULL)
             players = new UnionFind();
         if (team != NULL && team->GetNumOfPlayers() == 0){
+            this->teamsByAbility->remove(temp, &CompareByAbility);
             newPlayer = new Player(playerId, gamesPlayed, ability, cards, goalKeeper, team, spirit);
             Node<int, Player*>* newNode = players->makeset(*newPlayer, teamId);
             team->SetLeader(newNode);
+            this->teamsByAbility->insert(team, &CompareByAbility);
         } else  if (team != NULL && team->GetNumOfPlayers() > 0){
+            temp.SetAbility(team->GetAbility());
+            this->teamsByAbility->remove(temp, &CompareByAbility);
             newPlayer = new Player(playerId, gamesPlayed, ability, cards, goalKeeper, NULL, spirit);
             players->addPlayerToTeam(*newPlayer, teamId);
+            this->teamsByAbility->insert(team, &CompareByAbility);
         }
-
-
     }catch(const std::bad_alloc&){
         return StatusType::ALLOCATION_ERROR;
     }
@@ -205,13 +211,10 @@ output_t<int> world_cup_t::get_team_points(int teamId)
 
 output_t<int> world_cup_t::get_ith_pointless_ability(int i)
 {
-    if (i == 54){
-        int a = 9;
-    }
     if (teamsByAbility == NULL){
         return StatusType::FAILURE;
     }else if (i < 0 || i >= teamsByAbility->getTreeSize()){
-        return StatusType::INVALID_INPUT;
+        return StatusType::FAILURE;
     }
     Team* ithTeam = teamsByAbility->getIthNode(i);
     if (ithTeam == NULL)

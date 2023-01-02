@@ -151,6 +151,10 @@ void UnionFind::rehashTeam(int teamId, Node<int, Player *> *leader) {
     teams->insert(teamId, leader);
 }
 
+void UnionFind::RemoveTeam(int teamId){
+    this->teams->remove(teamId);
+}
+
 
 
 
