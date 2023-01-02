@@ -12,7 +12,7 @@ void minimizePath(Node<int, Player*>* node){
     Player* current = node->value;
     Player* next = node->next->value;
     current->SetGamesPlayed(current->GetGamesPlayed() + next->GetGamesPlayed());
-    current->multiplySpirit(next->getPartialSpirit()*next->getSpirit().inv());
+    current->multiplySpirit(next->GetPartialSpirit());
     node->next = node->next->next;
 }
 
@@ -20,14 +20,13 @@ Node<int, Player*>* UnionFind::makeset(Player &player, int teamId) {
     Node<int, Player*>* newNode = new Node<int, Player*>{player.GetPlayerId(), &player, NULL};
     players->insert(player.GetPlayerId(), newNode);
     teams->insert(teamId, newNode);
-    Node<int, Player*>* team = *teams->get(teamId);
-    Team* teamPtr = team->value->GetTeam();
-    teamPtr->SetSpirit(new permutation_t(player.getSpirit()));
+    Team* teamPtr = newNode->value->GetTeam();
+    teamPtr->SetTeamSpirit(new permutation_t(player.GetSpirit()));
     teamPtr->SetGamesPlayed(player.GetGamesPlayed());
-    teamPtr->SetNumOfPlayers(teamPtr->GetNumOfPlayers()+1);
+    teamPtr->SetNumOfPlayers(1);
     if (player.isGoalKeeper())
-        teamPtr->SetNumGoalKeepers(teamPtr->GetNumGoalkeepers()+1);
-    teamPtr->SetAbility(teamPtr->GetAbility() + player.GetAbility());
+        teamPtr->SetNumGoalKeepers(1);
+    teamPtr->SetAbility(player.GetAbility());
     teamPtr->UpdateStrength();
     return newNode;
 }
@@ -52,37 +51,49 @@ void UnionFind::unite(Node<int, Player*>* buyer, Node<int, Player*>* bought) {
     if (buyer == NULL || bought == NULL){
         return;
     }
+
+    // Get pointers to teams & id's.
     Team* buyerPtr = buyer->value->GetTeam();
     Team* boughtPtr = bought->value->GetTeam();
-    int buyerSize = buyerPtr->GetNumOfPlayers();
-    int boughtSize = boughtPtr->GetNumOfPlayers();
     int buyerId = buyerPtr->GetId();
     int boughtId = boughtPtr->GetId();
-    if (buyerSize < boughtSize){
-        buyer->next = bought;
-        buyer->value->multiplySpirit(*boughtPtr->GetTeamSpirit());
-        boughtPtr->multiplyTeamSpirit(buyer->value->getSpirit());
-        buyerPtr->SetGamesPlayed(buyerPtr->GetGamesPlayed() - boughtPtr->GetGamesPlayed());
-        boughtPtr->SetNumOfPlayers(buyerPtr->GetNumOfPlayers() + boughtPtr->GetNumOfPlayers());
-        boughtPtr->SetAbility(buyerPtr->GetAbility() + boughtPtr->GetAbility());
-        boughtPtr->SetNumGoalKeepers(buyerPtr->GetNumGoalkeepers() + boughtPtr->GetNumGoalkeepers());
-        boughtPtr->SetPoints(buyerPtr->GetPoints() + boughtPtr->GetPoints());
-        boughtPtr->UpdateStrength();
-        teams->remove(buyerId);
-    }else
-    {
+    Team* temp;
+    // Simple case ('bought' < 'buyer').
+    if (buyerPtr->GetNumOfPlayers() > boughtPtr->GetNumOfPlayers()){
+        // Fix the nodes (using the "Crates method" from tutorial).
         bought->next = buyer;
-        bought->value->multiplySpirit(*buyerPtr->GetTeamSpirit());
-        buyerPtr->multiplyTeamSpirit(bought->value->getSpirit());
-        boughtPtr->SetGamesPlayed(boughtPtr->GetGamesPlayed() - buyerPtr->GetGamesPlayed());
-        buyerPtr->SetNumOfPlayers(buyerPtr->GetNumOfPlayers() + boughtPtr->GetNumOfPlayers());
-        buyerPtr->SetAbility(buyerPtr->GetAbility() + boughtPtr->GetAbility());
-        buyerPtr->SetNumGoalKeepers(buyerPtr->GetNumGoalkeepers() + boughtPtr->GetNumGoalkeepers());
-        buyerPtr->SetPoints(buyerPtr->GetPoints() + boughtPtr->GetPoints());
-        buyerPtr->UpdateStrength();
-        teams->remove(boughtId);
-    }
+        bought->value->SetGamesPlayed(bought->value->GetGamesPlayed() - buyer->value->GetGamesPlayed());
+        bought->value->multiplySpirit(*buyerPtr->GetTeamSpirit()); // Does: buyer*bought (buyer was before).
 
+        // Remove 'bought' root from the array that holds pointers to team roots (it was united).
+        teams->remove(boughtId);
+        // Delete team 'bought' (it isn't necessary anymore).
+        temp = boughtPtr;
+        bought->value->SetTeam(NULL);
+    }else{ // Hard case ('buyer' < 'bought').
+        // Fix the nodes (using the "Crates method" from tutorial).
+        buyer->next = bought;
+        bought->value->multiplySpirit(*buyerPtr->GetTeamSpirit()); //Does: buyer*bought (buyer was before).
+        buyer->value->multiplySpirit(bought->value->GetPartialSpirit().inv()); //Abort the effect of 'bought' root.
+        buyer->value->SetGamesPlayed(buyer->value->GetGamesPlayed() - bought->value->GetGamesPlayed());
+
+        // Remove 'buyer' root from the array that holds pointers to team roots (it was united).
+        teams->remove(buyerId);
+
+        // Make sure that the root of 'bought' holds a pointer to team 'buyer' (he is the new root).
+        temp = boughtPtr;
+        bought->value->SetTeam(buyerPtr);
+        buyer->value->SetTeam(NULL);
+        buyerPtr->SetLeader(bought);
+    }
+    // Update the values of 'buyer'.
+    buyerPtr->multiplyTeamSpirit(*boughtPtr->GetTeamSpirit()); // Does: buyer*bought (buyer was before).
+    buyerPtr->SetNumOfPlayers(buyerPtr->GetNumOfPlayers() + boughtPtr->GetNumOfPlayers());
+    buyerPtr->SetAbility(buyerPtr->GetAbility() + boughtPtr->GetAbility());
+    buyerPtr->SetNumGoalKeepers(buyerPtr->GetNumGoalkeepers() + boughtPtr->GetNumGoalkeepers());
+    buyerPtr->SetPoints(buyerPtr->GetPoints() + boughtPtr->GetPoints());
+    buyerPtr->UpdateStrength();
+    delete temp;
 }
 
 void UnionFind::addPlayerToTeam(Player &player, int teamId) {
@@ -90,7 +101,7 @@ void UnionFind::addPlayerToTeam(Player &player, int teamId) {
     players->insert(player.GetPlayerId(), newNode);
     Node<int, Player*>* team = *teams->get(teamId);
     Team* teamPtr = team->value->GetTeam();
-    teamPtr->multiplyTeamSpirit(player.getSpirit());
+    teamPtr->multiplyTeamSpirit(player.GetSpirit());
     teamPtr->SetNumOfPlayers(teamPtr->GetNumOfPlayers()+1);
     if (player.isGoalKeeper())
         teamPtr->SetNumGoalKeepers(teamPtr->GetNumGoalkeepers()+1);
@@ -117,17 +128,23 @@ bool UnionFind::DoesPlayerExist(int id) {
 int UnionFind::NumPlayedGamesForPlayer(int playerId) {
     Node<int, Player*>* current = *players->get(playerId);
     minimizePath(current);
-    return current->value->GetGamesPlayed();
+    int gamesPlayed = current->value->GetGamesPlayed();
+    if (current->next != NULL)
+        gamesPlayed += current->next->value->GetGamesPlayed();
+    return gamesPlayed;
 }
 
 Node<int, Player *> *UnionFind::get(int key) {
     return *players->get(key);
 }
 
-const permutation_t &UnionFind::getPartialSpirit(int playerId) {
-    Node<int, Player*>* player = *players->get(playerId);
-    minimizePath(player);
-    return player->value->getPartialSpirit();
+permutation_t UnionFind::getPartialSpirit(int playerId) {
+    Node<int, Player*>* current = *players->get(playerId);
+    minimizePath(current);
+    permutation_t p = current->value->GetPartialSpirit()*current->value->GetSpirit();
+    if (current->next != NULL)
+        return p = current->next->value->GetPartialSpirit()*p;
+    return p;
 }
 
 

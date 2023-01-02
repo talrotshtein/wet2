@@ -79,9 +79,6 @@ StatusType world_cup_t::add_player(int playerId, int teamId,
                                    const permutation_t &spirit, int gamesPlayed,
                                    int ability, int cards, bool goalKeeper)
 {
-    if (playerId == 119 && teamId == 54){
-        int b = 9;
-    }
     Team temp = Team(teamId);
     if(playerId <= 0 || teamId <= 0 || !spirit.isvalid() || gamesPlayed < 0 || cards < 0)
         return StatusType::INVALID_INPUT;
@@ -234,9 +231,6 @@ output_t<permutation_t> world_cup_t::get_partial_spirit(int playerId)
 
 StatusType world_cup_t::buy_team(int buyerId, int boughtId)
 {
-    if (buyerId == 25 && boughtId == 11){
-        int b = 9;
-    }
 	if (buyerId <= 0 || boughtId <= 0 || buyerId == boughtId){
         return StatusType::INVALID_INPUT;
     }

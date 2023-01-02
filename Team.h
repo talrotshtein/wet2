@@ -46,7 +46,7 @@ public:
     void SetNumGoalKeepers(int val) {this->numGoalKeepers = val;}
     void SetPoints(int val){this->points = val;}
     void SetId(int val){this->teamId = val;}
-    void SetSpirit(permutation_t* p) {teamSpirit = p;}
+    void SetTeamSpirit(permutation_t* p) { teamSpirit = p;}
 };
 
 

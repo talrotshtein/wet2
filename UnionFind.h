@@ -21,7 +21,7 @@ public:
     Node<int, Player*>* makeset(Player& player, int teamId);
     Node<int, Player*>* find(int key);
     Node<int, Player*>* get(int key);
-    const permutation_t& getPartialSpirit(int playerId);
+    permutation_t getPartialSpirit(int playerId);
     void unite(Node<int, Player*>* buyer, Node<int, Player*>* bought);
     void addPlayerToTeam(Player& player, int teamId);
     bool DoesPlayerExist(int id);
